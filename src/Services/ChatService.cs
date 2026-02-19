@@ -5,29 +5,42 @@ namespace ZavaStorefront.Services
 {
     public class ChatService
     {
-        private readonly ChatCompletionsClient _client;
+        private readonly ChatCompletionsClient? _client;
         private readonly string _deploymentName;
         private readonly ILogger<ChatService> _logger;
+        private readonly bool _isConfigured;
 
         public ChatService(IConfiguration configuration, ILogger<ChatService> logger)
         {
             _logger = logger;
-
-            var endpoint = configuration["AzureAI:Endpoint"] 
-                ?? throw new InvalidOperationException("AzureAI:Endpoint is not configured.");
-            var apiKey = configuration["AzureAI:ApiKey"] 
-                ?? throw new InvalidOperationException("AzureAI:ApiKey is not configured.");
             _deploymentName = configuration["AzureAI:DeploymentName"] ?? "Phi-4";
+
+            var endpoint = configuration["AzureAI:Endpoint"];
+            var apiKey = configuration["AzureAI:ApiKey"];
+
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(apiKey))
+            {
+                _logger.LogWarning("AzureAI:Endpoint or AzureAI:ApiKey is not configured. Chat feature will be unavailable.");
+                _isConfigured = false;
+                return;
+            }
 
             _client = new ChatCompletionsClient(
                 new Uri(endpoint),
                 new AzureKeyCredential(apiKey));
+            _isConfigured = true;
         }
+
+        public bool IsConfigured => _isConfigured;
 
         public async Task<string> GetChatResponseAsync(List<ChatMessage> conversationHistory)
         {
             try
             {
+                if (!_isConfigured || _client == null)
+                {
+                    return "Chat is not available. The AI service is not configured. Please set AzureAI:Endpoint and AzureAI:ApiKey in the application settings.";
+                }
                 var requestOptions = new ChatCompletionsOptions
                 {
                     Model = _deploymentName
