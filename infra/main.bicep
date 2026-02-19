@@ -117,6 +117,8 @@ module webApp 'modules/webApp.bicep' = {
     containerRegistryLoginServer: acr.outputs.loginServer
     dockerImageAndTag: dockerImageAndTag
     appInsightsConnectionString: appInsights.outputs.connectionString
+    aiServicesEndpoint: aiServices.outputs.endpoint
+    aiDeploymentName: 'Phi-4'
     tags: tags
   }
 }

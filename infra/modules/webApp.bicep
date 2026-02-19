@@ -16,6 +16,16 @@ param dockerImageAndTag string = 'zavastore:latest'
 @description('Application Insights connection string')
 param appInsightsConnectionString string
 
+@description('Azure AI Services endpoint')
+param aiServicesEndpoint string = ''
+
+@description('Azure AI Services API key')
+@secure()
+param aiServicesApiKey string = ''
+
+@description('Azure AI deployment name')
+param aiDeploymentName string = 'Phi-4'
+
 @description('Tags to apply to the resource')
 param tags object = {}
 
@@ -52,6 +62,18 @@ resource webApp 'Microsoft.Web/sites@2024-04-01' = {
         {
           name: 'WEBSITES_PORT'
           value: '8080'
+        }
+        {
+          name: 'AzureAI__Endpoint'
+          value: aiServicesEndpoint
+        }
+        {
+          name: 'AzureAI__DeploymentName'
+          value: aiDeploymentName
+        }
+        {
+          name: 'AzureAI__ApiKey'
+          value: aiServicesApiKey
         }
       ]
     }
