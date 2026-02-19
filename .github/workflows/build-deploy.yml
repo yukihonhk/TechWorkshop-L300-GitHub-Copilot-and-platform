@@ -13,6 +13,9 @@ permissions:
 
 env:
   IMAGE_NAME: zavastore
+  ACR_NAME: acrzavastoredevyukiho3bb2
+  RESOURCE_GROUP: rg-zavastore-dev-westus3-yuki-ho3bb2
+  WEBAPP_NAME: app-zavastore-dev-yuki-ho3bb2
 
 jobs:
   build-and-deploy:
@@ -31,7 +34,7 @@ jobs:
       - name: Build and push image to ACR
         run: |
           az acr build \
-            --registry ${{ vars.ACR_NAME }} \
+            --registry ${{ env.ACR_NAME }} \
             --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --image ${{ env.IMAGE_NAME }}:latest \
             --file src/Dockerfile \
@@ -40,11 +43,11 @@ jobs:
       - name: Deploy to Web App
         run: |
           az webapp config container set \
-            --name ${{ vars.WEBAPP_NAME }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --container-image-name ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --container-registry-url https://${{ vars.ACR_NAME }}.azurecr.io
+            --name ${{ env.WEBAPP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --container-image-name ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --container-registry-url https://${{ env.ACR_NAME }}.azurecr.io
 
           az webapp restart \
-            --name ${{ vars.WEBAPP_NAME }} \
-            --resource-group ${{ vars.RESOURCE_GROUP }}
+            --name ${{ env.WEBAPP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }}
