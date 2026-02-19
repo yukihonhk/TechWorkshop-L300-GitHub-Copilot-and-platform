@@ -40,6 +40,13 @@ jobs:
             --file src/Dockerfile \
             src/
 
+      - name: Set AI Services API Key
+        run: |
+          az webapp config appsettings set \
+            --name ${{ env.WEBAPP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --settings AzureAI__ApiKey=${{ secrets.AZURE_AI_SERVICES_KEY }}
+
       - name: Deploy to Web App
         run: |
           az webapp config container set \
